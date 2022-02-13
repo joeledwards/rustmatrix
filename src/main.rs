@@ -5,7 +5,7 @@ use crate::event::{Event, Events};
 use crate::view::MatrixApp;
 
 fn main() {
-    let events = Events::new(250);
+    let events = Events::new(50);
     let mut app = MatrixApp::new();
 
     loop {

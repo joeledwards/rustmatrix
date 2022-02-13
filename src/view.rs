@@ -87,7 +87,7 @@ struct Column {
 impl Column {
     fn new(row_count: u16) -> Column {
         let mut rng = thread_rng();
-        let wait_time = rng.gen_range(0, row_count);
+        let wait_time = rng.gen_range(0..row_count);
         Column {
             row_count,
             wait_time,
@@ -99,7 +99,7 @@ impl Column {
 
     fn spawn_node(&mut self) -> Node {
         let max_range = self.row_count - 3;
-        let start_delay = self.rng.gen_range(1, max_range);
+        let start_delay = self.rng.gen_range(1..max_range);
         self.wait_time = start_delay;
 
         self.is_drawing = !self.is_drawing;

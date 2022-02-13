@@ -1,0 +1,4 @@
+- clear the screan after ctrl+c
+- don't update all characters at the same time
+- add overwrites (fixed columns which are overwritten before they start sliding again)
+- configuration support (refresh rate, density, etc.); can be envinronment variables to start
