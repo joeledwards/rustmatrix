@@ -5,7 +5,6 @@ mod view;
 
 use crate::event::{Event, Events};
 use crate::view::MatrixApp;
-use crate::color::{Color};
 use config::parse_config;
 
 fn main() {
