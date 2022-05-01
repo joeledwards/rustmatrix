@@ -1,8 +1,15 @@
 [package]
 name = "termatrix"
+description = "The Matrix scrolling in your terminal"
 version = "0.2.0"
 authors = ["Joel Edwards <joeledwards@gmail.com>"]
 edition = "2021"
+keywords = ["matrix", "terminal"]
+categories = ["command-line-utilities"]
+repository = "https://github.com/joeledwards/termatrix/"
+readme = "README.md"
+website = "https://github.com/joeledwards/termatrix/"
+license = "ISC"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
