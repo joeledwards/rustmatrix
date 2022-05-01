@@ -20,6 +20,7 @@ pub struct Events {
 impl Events {
     pub fn new(tick_rate: u64) -> Events {
         let (tx, rx) = mpsc::channel();
+
         let input_handle = {
             let tx = tx.clone();
             thread::spawn(move || {
@@ -31,6 +32,7 @@ impl Events {
                 }
             })
         };
+
         let tick_handle = {
             let tx = tx.clone();
             thread::spawn(move || loop {

@@ -1,18 +1,21 @@
+mod color;
+mod config;
 mod event;
 mod view;
 
 use crate::event::{Event, Events};
 use crate::view::MatrixApp;
+use crate::color::{Color};
+use config::parse_config;
 
 fn main() {
-    let events = Events::new(50);
-    let mut app = MatrixApp::new();
+    let config = parse_config();
+    let events = Events::new(config.delay_ms);
+    let mut app = MatrixApp::new(config.color);
 
     loop {
         match events.next().unwrap() {
-            Event::Tick => {
-                app.on_tick();
-            }
+            Event::Tick => app.on_tick(),
             Event::Exit => break,
         }
     }

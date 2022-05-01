@@ -1,3 +1,5 @@
+//mod color;
+
 use rand::prelude::*;
 use std::cell::RefCell;
 use std::collections::VecDeque;
@@ -5,6 +7,7 @@ use std::io::{stdout, Stdout, Write};
 use std::mem;
 use termion;
 use termion::raw::{IntoRawMode, RawTerminal};
+use crate::color::{Color};
 
 const CHARS: &str = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNMｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890-=*_+|:<>";
 
@@ -34,11 +37,13 @@ impl NodeType {
                 let chars: Vec<char> = String::from(CHARS).chars().collect();
                 let char = chars.choose(rng).unwrap().to_owned();
                 let bold = rng.gen();
+
                 let color_type = if *white {
                     ColorType::White
                 } else {
                     ColorType::Normal
                 };
+
                 Character::Char {
                     char,
                     bold,
@@ -61,6 +66,7 @@ impl Node {
     fn new(mut node_type: NodeType) -> Node {
         let y = 1;
         let char = node_type.choice_char();
+
         Node {
             node_type,
             y,
@@ -137,10 +143,11 @@ impl Column {
 pub struct MatrixApp {
     columns: Vec<Column>,
     stdout: RefCell<RawTerminal<Stdout>>,
+    color: Color,
 }
 
 impl MatrixApp {
-    pub fn new() -> MatrixApp {
+    pub fn new(color: Color) -> MatrixApp {
         let (size_x, size_y) = termion::terminal_size().unwrap();
         let mut stdout = stdout().into_raw_mode().unwrap();
         write!(stdout, "{}{}", termion::clear::All, termion::cursor::Hide).unwrap();
@@ -151,6 +158,7 @@ impl MatrixApp {
         MatrixApp {
             columns,
             stdout: RefCell::new(stdout),
+            color,
         }
     }
 
@@ -230,7 +238,7 @@ impl MatrixApp {
         write!(
             self.stdout.borrow_mut(),
             "{}",
-            termion::color::Fg(termion::color::Green)
+            termion::color::Fg(self.color.as_term().as_ref()),
         )
         .unwrap();
     }
@@ -246,7 +254,10 @@ impl MatrixApp {
     }
 
     pub fn on_tick(&mut self) {
+        // First we update state (calculate new character locations)
         self.update();
+
+        // Then we update the display (refresh the contents of the terminal)
         self.draw();
     }
 }
