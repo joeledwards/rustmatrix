@@ -34,21 +34,6 @@ impl FromStr for Color {
     }
 }
 
-impl Display for Color {
-    fn fmt(&self, f: &mut Formatter<'_>) -> FormatResult {
-        match self {
-            Color::Black => write!(f, "{}", "black"),
-            Color::Blue => write!(f, "{}", "blue"),
-            Color::Cyan => write!(f, "{}", "cyan"),
-            Color::Green => write!(f, "{}", "green"),
-            Color::Magenta => write!(f, "{}", "magenta"),
-            Color::Red => write!(f, "{}", "red"),
-            Color::White => write!(f, "{}", "white"),
-            Color::Yellow => write!(f, "{}", "yellow"),
-        }
-    }
-}
-
 impl Color {
     pub fn as_term(&self) -> Box<dyn TermColor> {
         let c: Box<dyn TermColor> = match *self {
@@ -63,5 +48,24 @@ impl Color {
         };
 
         c
+    }
+
+    fn name(&self) -> &str {
+        match self {
+            Color::Black => "black",
+            Color::Blue => "blue",
+            Color::Cyan => "cyan",
+            Color::Green => "green",
+            Color::Magenta => "magenta",
+            Color::Red => "red",
+            Color::White => "white",
+            Color::Yellow => "yellow",
+        }
+    }
+}
+
+impl Display for Color {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FormatResult {
+        write!(f, "{}", self.name())
     }
 }
