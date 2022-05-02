@@ -1,4 +1,4 @@
-- clear the screan after ctrl+c
-- don't update all characters at the same time
+- add configuration option for density (0.1 - 0.9)
+- clear the screan after ctrl+c (seems like termion is supposed to handle this, possible we are not awaiting the completion of a thread)
+- stagger updating of characters (reduce "pulsing")
 - add overwrites (fixed columns which are overwritten before they start sliding again)
-- configuration support (refresh rate, density, etc.); can be envinronment variables to start
