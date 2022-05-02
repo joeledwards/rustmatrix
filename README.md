@@ -5,6 +5,11 @@ Cli application to simulate the display from "The Matrix" in terminal. Based on 
 
 ## Installation
 
+### Cargo
+```shell
+cargo install termatrix
+```
+
 ### NetBSD
 ```shell
 pkgin install termatrix
