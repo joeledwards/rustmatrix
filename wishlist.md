@@ -1,4 +1,10 @@
 - add configuration option for density (0.1 - 0.9)
 - clear the screan after ctrl+c (seems like termion is supposed to handle this, possible we are not awaiting the completion of a thread)
+- traces should update at different rates
 - stagger updating of characters (reduce "pulsing")
-- add overwrites (fixed columns which are overwritten before they start sliding again)
+- permit overwrites (multiple traces in the same column)
+- add configuration option for overwrite behavior (deletes the trace it catches vs being followed by it)
+- handle terminal resizing
+  - when window size decreasing, delete out-of-bounds traces
+  - when window size increasing, start sliding again / add new traces
+- add configuration option for trace "gravity" (tendency to cluster together rather than simple random placement)
