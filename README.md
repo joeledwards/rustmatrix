@@ -27,5 +27,6 @@ USAGE:
 OPTIONS:
     -c, --glyph-color <COLOR>    [env: TERMATRIX_GLYPH_COLOR=] [default: green]
     -d, --delay-ms <DELAY_MS>    [env: TERMATRIX_DELAY_MS=] [default: 50]
+    --density <DENSITY>          [env: TERMATRIX_DELAY_MS=] [default: 0.5]
     -h, --help                   Print help information
 ```

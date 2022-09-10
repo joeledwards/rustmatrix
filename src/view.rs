@@ -9,6 +9,9 @@ use termion;
 use termion::raw::{IntoRawMode, RawTerminal};
 use crate::color::{Color};
 
+// TODO: store traces in a TreeSet ordered by next_update_time. The next_update_time is computed
+// based on the previous update time and the update_interval of the trace.
+
 const CHARS: &str = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNMｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890-=*_+|:<>";
 
 enum ColorType {

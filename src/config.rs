@@ -15,11 +15,25 @@ pub struct Config {
     pub color: Color,
 
     #[clap(
+        short = 'C', long = "colors",
+        env = "TERMATRIX_COLORS",
+        default_value_t = 'g'
+    )]
+    pub colors: String,
+
+    #[clap(
         short = 'd', long = "delay-ms",
         env = "TERMATRIX_DELAY_MS",
         default_value_t = 50
     )]
     pub delay_ms: u64,
+
+    #[clap(
+        long = "density",
+        env = "TERMATRIX_DENSITY",
+        default_value_t = 0.5
+    )]
+    pub density: f64,
 }
 
 pub fn parse_config() -> Config {
