@@ -5,6 +5,7 @@ use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::io::{stdout, Stdout, Write};
 use std::mem;
+use std::time::{Instant, Duration};
 use termion;
 use termion::raw::{IntoRawMode, RawTerminal};
 use crate::color::{Color, ColorPool};
@@ -28,15 +29,15 @@ enum Character {
     Blank,
 }
 
-enum NodeType {
+enum GlyphType {
     Eraser,
     Writer { white: bool, rng: ThreadRng },
 }
 
-impl NodeType {
+impl GlyphType {
     fn choice_char(&mut self) -> Character {
         match self {
-            NodeType::Writer { white, ref mut rng } => {
+            GlyphType::Writer { white, ref mut rng } => {
                 let chars: Vec<char> = String::from(CHARS).chars().collect();
                 let char = chars.choose(rng).unwrap().to_owned();
                 let bold = rng.gen();
@@ -53,24 +54,24 @@ impl NodeType {
                     color_type,
                 }
             }
-            NodeType::Eraser => Character::Blank,
+            GlyphType::Eraser => Character::Blank,
         }
     }
 }
 
-struct Node {
-    node_type: NodeType,
+struct Glyph {
+    node_type: GlyphType,
     y: u16,
     previous_char: Character,
     char: Character,
 }
 
-impl Node {
-    fn new(mut node_type: NodeType) -> Node {
+impl Glyph {
+    fn new(mut node_type: GlyphType) -> Glyph {
         let y = 1;
         let char = node_type.choice_char();
 
-        Node {
+        Glyph {
             node_type,
             y,
             previous_char: Character::Blank,
@@ -85,68 +86,78 @@ impl Node {
     }
 }
 
-struct Column {
-    row_count: u16,
+struct Trace {
+    glyph_count: u16, // The number of glyphs in this trace
+    update_delay: Duration, // Minimal delay between trace updates
+    last_updated: Instant, // Time of last update
     wait_time: u16,
     rng: ThreadRng,
-    nodes: VecDeque<Node>,
+    glyphs: VecDeque<Glyph>,
     is_drawing: bool,
     color: Color,
 }
 
-impl Column {
-    fn new(row_count: u16, color: Color) -> Column {
+impl Trace {
+    fn new(glyph_count: u16, color: Color) -> Trace {
         let mut rng = thread_rng();
-        let wait_time = rng.gen_range(0..row_count);
-        Column {
-            row_count,
+        let update_delay = Duration::from_millis(rng.gen_range(50..150));
+        let wait_time = rng.gen_range(0..glyph_count);
+        let last_updated = Instant::now();
+
+        Trace {
+            glyph_count,
+            update_delay,
+            last_updated,
             wait_time,
             rng,
-            nodes: VecDeque::new(),
+            glyphs: VecDeque::new(),
             is_drawing: false,
             color,
         }
     }
 
-    fn spawn_node(&mut self) -> Node {
-        let max_range = self.row_count - 3;
+    fn spawn_node(&mut self) -> Glyph {
+        let max_range = self.glyph_count - 3;
         let start_delay = self.rng.gen_range(1..max_range);
         self.wait_time = start_delay;
 
         self.is_drawing = !self.is_drawing;
         if self.is_drawing {
             let white: bool = self.rng.gen();
-            Node::new(NodeType::Writer {
+            Glyph::new(GlyphType::Writer {
                 white,
                 rng: thread_rng(),
             })
         } else {
-            Node::new(NodeType::Eraser)
+            Glyph::new(GlyphType::Eraser)
         }
     }
 
     fn update(&mut self) {
-        for node in self.nodes.iter_mut() {
-            node.update();
+        let now = Instant::now();
+
+        // TODO: Update Traces to only update at their internal, fixed refresh rate.
+        for glyph in self.glyphs.iter_mut() {
+            glyph.update();
         }
 
         if self.wait_time == 0 {
-            let node = self.spawn_node();
-            self.nodes.push_back(node);
+            let glyph = self.spawn_node();
+            self.glyphs.push_back(glyph);
         } else {
             self.wait_time -= 1;
         }
 
-        if let Some(node) = self.nodes.front() {
-            if node.y > self.row_count {
-                self.nodes.pop_front();
+        if let Some(glyph) = self.glyphs.front() {
+            if glyph.y > self.glyph_count {
+                self.glyphs.pop_front();
             }
         }
     }
 }
 
 pub struct MatrixApp {
-    columns: Vec<Column>,
+    columns: Vec<Trace>,
     stdout: RefCell<RawTerminal<Stdout>>,
     color_pool: ColorPool,
 }
@@ -158,7 +169,7 @@ impl MatrixApp {
         write!(stdout, "{}{}", termion::clear::All, termion::cursor::Hide).unwrap();
         let column_count = size_x / 2;
 
-        let columns = (0..column_count).map(|_| Column::new(size_y, color_pool.random())).collect();
+        let columns = (0..column_count).map(|_| Trace::new(size_y, color_pool.random())).collect();
 
         MatrixApp {
             columns,
@@ -175,15 +186,15 @@ impl MatrixApp {
 
     fn draw(&self) {
         for (x, column) in self.columns.iter().enumerate() {
-            for node in column.nodes.iter() {
+            for glyph in column.glyphs.iter() {
                 write!(
                     self.stdout.borrow_mut(),
                     "{}",
-                    termion::cursor::Goto((x * 2) as u16, node.y)
+                    termion::cursor::Goto((x * 2) as u16, glyph.y)
                 )
                 .unwrap();
 
-                match &node.char {
+                match &glyph.char {
                     Character::Char {
                         char,
                         bold,
@@ -210,7 +221,7 @@ impl MatrixApp {
                     }
                 }
 
-                if node.y == 1 {
+                if glyph.y == 1 {
                     continue;
                 }
 
@@ -218,13 +229,13 @@ impl MatrixApp {
                     char,
                     bold,
                     color_type: ColorType::White,
-                } = &node.char
+                } = &glyph.char
                 {
                     self.set_normal_char_style(*bold, column.color);
                     write!(
                         self.stdout.borrow_mut(),
                         "{}{}{}",
-                        termion::cursor::Goto((x * 2) as u16, (node.y - 1) as u16),
+                        termion::cursor::Goto((x * 2) as u16, (glyph.y - 1) as u16),
                         char,
                         termion::style::Reset
                     )
@@ -259,10 +270,11 @@ impl MatrixApp {
     }
 
     pub fn on_tick(&mut self) {
-        // First we update state (calculate new character locations)
+        // First we update state (calculate updated traces)
         self.update();
 
-        // Then we update the display (refresh the contents of the terminal)
+        // Then we update the display
+        // (diff with the prior trace states and update the terminal based on the diffs)
         self.draw();
     }
 }

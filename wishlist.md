@@ -8,6 +8,10 @@
   - when window size decreasing, delete out-of-bounds traces
   - when window size increasing, start sliding again / add new traces
 - add configuration option for trace "gravity" (tendency to cluster together rather than simple random placement)
-- add support for multiple colors at once via new --colors option which accepts a string of letters indicating
-  the weight of each color based on frequency, so "rrb" would be twice as many red as blue
-
+- option to --debug which will reserve a few lines at the top of the screen dedicated to debug info
+  - update delay
+  - updates / sec (frequency in Hz)
+  - glyphs / sec
+  - glyphs / update
+  - traces / update
+  - min/max glyph delay (actual, not the configured min/max)

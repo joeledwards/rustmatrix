@@ -18,7 +18,7 @@ pub struct Events {
 }
 
 impl Events {
-    pub fn new(tick_rate: u64) -> Events {
+    pub fn new(tick_rate: Duration) -> Events {
         let (tx, rx) = mpsc::channel();
 
         let input_handle = {
@@ -37,7 +37,7 @@ impl Events {
             let tx = tx.clone();
             thread::spawn(move || loop {
                 tx.send(Event::Tick).unwrap();
-                thread::sleep(Duration::from_millis(tick_rate))
+                thread::sleep(tick_rate)
             })
         };
 
