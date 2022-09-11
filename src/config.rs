@@ -17,7 +17,7 @@ pub struct Config {
     #[clap(
         short = 'C', long = "colors",
         env = "TERMATRIX_COLORS",
-        default_value_t = 'g'
+        default_value = "g"
     )]
     pub colors: String,
 

@@ -1,12 +1,12 @@
 use std::fmt::{Display, Formatter, Result as FormatResult};
 use std::str::FromStr;
 
-use rand::Rng;
-
+use rand;
 use termion;
 use termion::color::{Color as TermColor};
 
 
+#[derive(Copy,Clone)]
 pub enum Color {
     Black,
     Blue,
@@ -34,9 +34,11 @@ impl FromStr for Color {
             _ => Err(format!("Unsupported color '{}'", s)),
         }
     }
+}
 
-    fn from_char(c: char) -> Result<Color, String> {
-        match c.to_lowercase() {
+impl Color {
+    pub fn from_char(c: char) -> Result<Color, String> {
+        match c {
             'b' => Ok(Color::Blue),
             'c' => Ok(Color::Cyan),
             'g' => Ok(Color::Green),
@@ -48,9 +50,7 @@ impl FromStr for Color {
             _ => Err(format!("Unsupported color character '{}'", c)),
         }
     }
-}
 
-impl Color {
     pub fn as_term(&self) -> Box<dyn TermColor> {
         let c: Box<dyn TermColor> = match *self {
             Color::Black => Box::new(termion::color::Black),
@@ -86,41 +86,46 @@ impl Display for Color {
     }
 }
 
-struct ColorPool {
-    next: u32;
-    colors: Vec<Color>;
+pub struct ColorPool {
+    nextIndex: u32,
+    colors: Vec<Color>,
 }
 
-impl ColorPool: Rng {
+impl ColorPool {
     pub fn new(char_seq: &str) -> ColorPool {
         let colors = char_seq_to_colors(char_seq);
-        ColorPool {
-            0,
-            colors   
-        }
+        let pool = ColorPool {
+            nextIndex: 0,
+            colors: colors,
+        };
+        pool
     }
 
-    pub fn next(&self) -> Color {
-        let nextColor = colors.get(next);
-        if (self.next >= colors.len()) {
-            self.next = 0;
+    pub fn next(&mut self) -> Color {
+        let index = self.nextIndex as usize;
+        let nextColor = self.colors.get(index).unwrap();
+        let color_count = self.colors.len() as u32;
+        if self.nextIndex >= color_count {
+            self.nextIndex = 0;
         } else {
-            self.next += 1;
+            self.nextIndex += 1;
         }
-        nextColor
+        *nextColor
     }
 
     pub fn random(&self) -> Color {
-        let index = self.gen_range(0..colors.len());
-        colors.get(index)
+        let color_count = self.colors.len() as u32;
+        let index = (rand::random::<f32>() * (color_count as f32)) as usize;
+        *self.colors.get(index).unwrap()
     }
 }
 
 fn char_seq_to_colors(seq: &str) -> Vec<Color> {
-    let colors: Vec<Color> = Vec::new();
-    for c in seq.chars() {
+    let mut colors: Vec<Color> = Vec::new();
+    for c in seq.to_lowercase().as_str().chars() {
         match Color::from_char(c) {
             Ok(color) => colors.push(color),
+            Err(_) => (),
         }
     }
     colors

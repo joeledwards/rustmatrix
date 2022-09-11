@@ -7,7 +7,7 @@ use std::io::{stdout, Stdout, Write};
 use std::mem;
 use termion;
 use termion::raw::{IntoRawMode, RawTerminal};
-use crate::color::{Color};
+use crate::color::{Color, ColorPool};
 
 // TODO: store traces in a TreeSet ordered by next_update_time. The next_update_time is computed
 // based on the previous update time and the update_interval of the trace.
@@ -91,10 +91,11 @@ struct Column {
     rng: ThreadRng,
     nodes: VecDeque<Node>,
     is_drawing: bool,
+    color: Color,
 }
 
 impl Column {
-    fn new(row_count: u16) -> Column {
+    fn new(row_count: u16, color: Color) -> Column {
         let mut rng = thread_rng();
         let wait_time = rng.gen_range(0..row_count);
         Column {
@@ -103,6 +104,7 @@ impl Column {
             rng,
             nodes: VecDeque::new(),
             is_drawing: false,
+            color,
         }
     }
 
@@ -146,22 +148,22 @@ impl Column {
 pub struct MatrixApp {
     columns: Vec<Column>,
     stdout: RefCell<RawTerminal<Stdout>>,
-    color: Color,
+    color_pool: ColorPool,
 }
 
 impl MatrixApp {
-    pub fn new(color: Color) -> MatrixApp {
+    pub fn new(color_pool: ColorPool) -> MatrixApp {
         let (size_x, size_y) = termion::terminal_size().unwrap();
         let mut stdout = stdout().into_raw_mode().unwrap();
         write!(stdout, "{}{}", termion::clear::All, termion::cursor::Hide).unwrap();
         let column_count = size_x / 2;
 
-        let columns = (0..column_count).map(|_| Column::new(size_y)).collect();
+        let columns = (0..column_count).map(|_| Column::new(size_y, color_pool.random())).collect();
 
         MatrixApp {
             columns,
             stdout: RefCell::new(stdout),
-            color,
+            color_pool,
         }
     }
 
@@ -192,7 +194,7 @@ impl MatrixApp {
                                 self.set_white_char_style();
                             }
                             ColorType::Normal => {
-                                self.set_normal_char_style(*bold);
+                                self.set_normal_char_style(*bold, column.color);
                             }
                         };
                         write!(
@@ -218,7 +220,7 @@ impl MatrixApp {
                     color_type: ColorType::White,
                 } = &node.char
                 {
-                    self.set_normal_char_style(*bold);
+                    self.set_normal_char_style(*bold, column.color);
                     write!(
                         self.stdout.borrow_mut(),
                         "{}{}{}",
@@ -233,7 +235,7 @@ impl MatrixApp {
         self.stdout.borrow_mut().flush().unwrap();
     }
 
-    fn set_normal_char_style(&self, bold: bool) {
+    fn set_normal_char_style(&self, bold: bool, color: Color) {
         if bold {
             write!(self.stdout.borrow_mut(), "{}", termion::style::Bold,).unwrap();
         }
@@ -241,7 +243,7 @@ impl MatrixApp {
         write!(
             self.stdout.borrow_mut(),
             "{}",
-            termion::color::Fg(self.color.as_term().as_ref()),
+            termion::color::Fg(color.as_term().as_ref()),
         )
         .unwrap();
     }
