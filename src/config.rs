@@ -6,30 +6,31 @@ pub struct Config {
     #[clap(
         short = 'f', long = "update-frequency",
         env = "TERMATRIX_UPDATE_FREQUENCY",
-        help = "refresh rate (in Hz) for terminal updates",
-        default_value_t = 100
+        help = "Refresh rate (in Hz) for terminal updates.",
+        default_value_t = 60
     )]
     pub update_frequency: u64,
 
     #[clap(
         short = 'd', long = "min-step-delay",
-        env = "TERMATRIX_UPDATE_FREQUENCY",
-        help = "minimum value of random trace delay in ms",
-        default_value_t = 25
+        env = "TERMATRIX_MIN_STEP_DELAY",
+        help = "Minimum value of trace (column) scroll delay in milliseconds.",
+        default_value_t = 40
     )]
     pub min_step_delay: u64,
 
     #[clap(
         short = 'D', long = "max-step-delay",
-        env = "TERMATRIX_UPDATE_FREQUENCY",
-        help = "maximum value of random trace delay in ms",
-        default_value_t = 75
+        env = "TERMATRIX_MAX_STEP_DELAY",
+        help = "Maximum value of trace (column) scroll delay in milliseconds.",
+        default_value_t = 120
     )]
     pub max_step_delay: u64,
 
     #[clap(
-        short = 'C', long = "colors",
+        short = 'c', long = "colors",
         env = "TERMATRIX_COLORS",
+        help = "Weighted sequence of colors (repeat color character for greater weight). (valid chars are: b, c, g, k, m, r, w, y",
         default_value = "g"
     )]
     pub colors: String,

@@ -171,7 +171,7 @@ impl MatrixApp {
         let (size_x, size_y) = termion::terminal_size().unwrap();
         let mut stdout = stdout().into_raw_mode().unwrap();
         write!(stdout, "{}{}", termion::clear::All, termion::cursor::Hide).unwrap();
-        let column_count = size_x / 2;
+        let column_count = (((size_x / 2) as f64) * config.density) as u64;
         let minsd = config.min_step_delay;
         let maxsd = config.max_step_delay;
 
