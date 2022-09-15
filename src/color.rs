@@ -87,7 +87,7 @@ impl Display for Color {
 }
 
 pub struct ColorPool {
-    nextIndex: u32,
+    next_index: u32,
     colors: Vec<Color>,
 }
 
@@ -95,22 +95,22 @@ impl ColorPool {
     pub fn new(char_seq: &str) -> ColorPool {
         let colors = char_seq_to_colors(char_seq);
         let pool = ColorPool {
-            nextIndex: 0,
+            next_index: 0,
             colors: colors,
         };
         pool
     }
 
     pub fn next(&mut self) -> Color {
-        let index = self.nextIndex as usize;
-        let nextColor = self.colors.get(index).unwrap();
+        let index = self.next_index as usize;
+        let next_color = self.colors.get(index).unwrap();
         let color_count = self.colors.len() as u32;
-        if self.nextIndex >= color_count {
-            self.nextIndex = 0;
+        if self.next_index >= color_count {
+            self.next_index = 0;
         } else {
-            self.nextIndex += 1;
+            self.next_index += 1;
         }
-        *nextColor
+        *next_color
     }
 
     pub fn random(&self) -> Color {

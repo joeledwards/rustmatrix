@@ -5,7 +5,6 @@ mod view;
 
 use crate::event::{Event, Events};
 use crate::view::MatrixApp;
-use crate::color::ColorPool;
 use crate::config::parse_config;
 use std::time::Duration;
 

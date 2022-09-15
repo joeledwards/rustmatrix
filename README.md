@@ -25,8 +25,22 @@ USAGE:
     termatrix [OPTIONS]
 
 OPTIONS:
-    -c, --glyph-color <COLOR>    [env: TERMATRIX_GLYPH_COLOR=] [default: green]
-    -d, --delay-ms <DELAY_MS>    [env: TERMATRIX_DELAY_MS=] [default: 50]
-    --density <DENSITY>          [env: TERMATRIX_DELAY_MS=] [default: 0.5]
-    -h, --help                   Print help information
+    -c, --colors <COLORS>
+            Weighted sequence of colors (repeat color character for greater weight). (valid chars
+            are: b, c, g, k, m, r, w, y [env: TERMATRIX_COLORS=] [default: g]
+
+    -d, --min-step-delay <MIN_STEP_DELAY>
+            Minimum value of trace (column) scroll delay in milliseconds. [env:
+            TERMATRIX_MIN_STEP_DELAY=] [default: 40]
+
+    -D, --max-step-delay <MAX_STEP_DELAY>
+            Maximum value of trace (column) scroll delay in milliseconds. [env:
+            TERMATRIX_MAX_STEP_DELAY=] [default: 120]
+
+    -f, --update-frequency <UPDATE_FREQUENCY>
+            Refresh rate (in Hz) for terminal updates. [env: TERMATRIX_UPDATE_FREQUENCY=] [default:
+            60]
+
+    -h, --help
+            Print help information
 ```

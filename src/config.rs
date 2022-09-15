@@ -34,13 +34,6 @@ pub struct Config {
         default_value = "g"
     )]
     pub colors: String,
-
-    #[clap(
-        long = "density",
-        env = "TERMATRIX_DENSITY",
-        default_value_t = 0.5
-    )]
-    pub density: f64,
 }
 
 pub fn parse_config() -> Config {

@@ -137,7 +137,7 @@ impl Trace {
     fn update(&mut self) {
         let now = Instant::now();
 
-        if (now.duration_since(self.last_updated).as_millis() >= self.update_delay.as_millis()) {
+        if now.duration_since(self.last_updated).as_millis() >= self.update_delay.as_millis() {
             for glyph in self.glyphs.iter_mut() {
                 glyph.update();
             }
@@ -162,7 +162,6 @@ impl Trace {
 pub struct MatrixApp {
     columns: Vec<Trace>,
     stdout: RefCell<RawTerminal<Stdout>>,
-    color_pool: ColorPool,
 }
 
 impl MatrixApp {
@@ -171,7 +170,7 @@ impl MatrixApp {
         let (size_x, size_y) = termion::terminal_size().unwrap();
         let mut stdout = stdout().into_raw_mode().unwrap();
         write!(stdout, "{}{}", termion::clear::All, termion::cursor::Hide).unwrap();
-        let column_count = (((size_x / 2) as f64) * config.density) as u64;
+        let column_count = size_x / 2;
         let minsd = config.min_step_delay;
         let maxsd = config.max_step_delay;
 
@@ -182,7 +181,6 @@ impl MatrixApp {
         MatrixApp {
             columns,
             stdout: RefCell::new(stdout),
-            color_pool,
         }
     }
 
