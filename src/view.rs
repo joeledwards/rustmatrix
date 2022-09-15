@@ -137,24 +137,23 @@ impl Trace {
     fn update(&mut self) {
         let now = Instant::now();
 
-        // TODO: Update Traces to only update at their internal, fixed refresh rate.
         if (now.duration_since(self.last_updated).as_millis() >= self.update_delay.as_millis()) {
             for glyph in self.glyphs.iter_mut() {
                 glyph.update();
             }
             self.last_updated = now;
-        }
 
-        if self.wait_time == 0 {
-            let glyph = self.spawn_node();
-            self.glyphs.push_back(glyph);
-        } else {
-            self.wait_time -= 1;
-        }
+            if self.wait_time == 0 {
+                let glyph = self.spawn_node();
+                self.glyphs.push_back(glyph);
+            } else {
+                self.wait_time -= 1;
+            }
 
-        if let Some(glyph) = self.glyphs.front() {
-            if glyph.y > self.glyph_count {
-                self.glyphs.pop_front();
+            if let Some(glyph) = self.glyphs.front() {
+                if glyph.y > self.glyph_count {
+                    self.glyphs.pop_front();
+                }
             }
         }
     }
