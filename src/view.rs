@@ -9,6 +9,7 @@ use std::time::{Instant, Duration};
 use termion;
 use termion::raw::{IntoRawMode, RawTerminal};
 use crate::color::{Color, ColorPool};
+use crate::config::{Config};
 
 // TODO: store traces in a TreeSet ordered by next_update_time. The next_update_time is computed
 // based on the previous update time and the update_interval of the trace.
@@ -98,9 +99,9 @@ struct Trace {
 }
 
 impl Trace {
-    fn new(glyph_count: u16, color: Color) -> Trace {
+    fn new(glyph_count: u16, color: Color, min_update_delay: u64, max_update_delay: u64) -> Trace {
         let mut rng = thread_rng();
-        let update_delay = Duration::from_millis(rng.gen_range(50..150));
+        let update_delay = Duration::from_millis(rng.gen_range(min_update_delay..max_update_delay));
         let wait_time = rng.gen_range(0..glyph_count);
         let last_updated = Instant::now();
 
@@ -137,8 +138,11 @@ impl Trace {
         let now = Instant::now();
 
         // TODO: Update Traces to only update at their internal, fixed refresh rate.
-        for glyph in self.glyphs.iter_mut() {
-            glyph.update();
+        if (now.duration_since(self.last_updated).as_millis() >= self.update_delay.as_millis()) {
+            for glyph in self.glyphs.iter_mut() {
+                glyph.update();
+            }
+            self.last_updated = now;
         }
 
         if self.wait_time == 0 {
@@ -163,13 +167,18 @@ pub struct MatrixApp {
 }
 
 impl MatrixApp {
-    pub fn new(color_pool: ColorPool) -> MatrixApp {
+    pub fn new(config: Config) -> MatrixApp {
+        let color_pool = ColorPool::new(config.colors.as_str());
         let (size_x, size_y) = termion::terminal_size().unwrap();
         let mut stdout = stdout().into_raw_mode().unwrap();
         write!(stdout, "{}{}", termion::clear::All, termion::cursor::Hide).unwrap();
         let column_count = size_x / 2;
+        let minsd = config.min_step_delay;
+        let maxsd = config.max_step_delay;
 
-        let columns = (0..column_count).map(|_| Trace::new(size_y, color_pool.random())).collect();
+        // TODO: replace the viewport when dimensions change
+
+        let columns = (0..column_count).map(|_| Trace::new(size_y, color_pool.random(), minsd, maxsd)).collect();
 
         MatrixApp {
             columns,

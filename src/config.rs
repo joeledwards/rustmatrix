@@ -1,5 +1,4 @@
 use clap::Parser;
-use crate::color::{Color};
 
 #[derive(Parser)]
 #[clap(name = "termatrix")]

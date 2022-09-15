@@ -13,8 +13,7 @@ fn main() {
     let config = parse_config();
     let tick_rate = Duration::from_nanos(1000000000 / config.update_frequency);
     let events = Events::new(tick_rate);
-    let color_pool = ColorPool::new(config.colors.as_str());
-    let mut app = MatrixApp::new(color_pool);
+    let mut app = MatrixApp::new(config);
 
     loop {
         match events.next().unwrap() {
