@@ -47,12 +47,15 @@ OPTIONS:
 
 ## Customization
 
+## Default
+
 Defaults to green glyphs:
 ```
 termatrix
 ```
 <img width="726" alt="termatrix green" src="https://user-images.githubusercontent.com/412853/166158329-bd5fe01a-bcf1-4a98-932c-cc6149675786.png">
 
+## Colors
 
 You can select a combination of colors via the --colors/-c option:
 ```
@@ -63,3 +66,9 @@ Or via the `TERMATRIX_COLORS` environment variable:
 TERMATRIX_COLORS=rgbcmy termtarix
 ```
 <img width="795" alt="termtarix color" src="https://user-images.githubusercontent.com/412853/191857267-2de948cc-4a59-49f9-aeae-2276c56a302e.png">
+
+## Step Delays
+
+Step delay is a minimum duration between updates to a trace (vertial cluster of glyphs). The step delay for each trace is a randomly selected duration between the `-min-step-delay` and the `--max-step-delay`.
+
+The variation in step delays results in faster traces passing slower traces. If `--min-step-delay` and `--max-step-delay` are the same, all traces will move at the same rate.
