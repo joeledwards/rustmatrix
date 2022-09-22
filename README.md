@@ -1,10 +1,8 @@
 # termatrix
 Cli application to simulate the falling glyphs from "The Matrix" in your terminal (forked from [rustmatrix](https://github.com/meganehouser/rustmatrix)).
 
-<img width="726" alt="Screen Shot 2022-05-01 at 11 54 39" src="https://user-images.githubusercontent.com/412853/166158329-bd5fe01a-bcf1-4a98-932c-cc6149675786.png">
-
-`termatrix -c rgbcmy`
 <img width="600" alt="tematrix-color.gif" src="https://user-images.githubusercontent.com/412853/191857343-43f8ea6f-7c70-452c-a958-55c3b3654683.gif">
+`termatrix -c rgbcmy`
 
 
 ## Installation
