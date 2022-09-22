@@ -1,7 +1,7 @@
 # termatrix
 Cli application to simulate the falling glyphs from "The Matrix" in your terminal (forked from [rustmatrix](https://github.com/meganehouser/rustmatrix)).
 
-<img width="600" alt="tematrix-color.gif" src="https://user-images.githubusercontent.com/412853/191857343-43f8ea6f-7c70-452c-a958-55c3b3654683.gif">
+<img width="600" alt="tematrix color scrolling GIF" src="https://user-images.githubusercontent.com/412853/191857343-43f8ea6f-7c70-452c-a958-55c3b3654683.gif">
 
 ## Installation
 
@@ -44,3 +44,22 @@ OPTIONS:
     -h, --help
             Print help information
 ```
+
+## Customization
+
+Defaults to green glyphs:
+```
+termatrix
+```
+<img width="726" alt="termatrix green" src="https://user-images.githubusercontent.com/412853/166158329-bd5fe01a-bcf1-4a98-932c-cc6149675786.png">
+
+
+You can select a combination of colors via the --colors/-c option:
+```
+termatrix -c rgbcmy
+```
+Or via the `TERMATRIX_COLORS` environment variable:
+```
+TERMATRIX_COLORS=rgbcmy termtarix
+```
+<img width="795" alt="termtarix color" src="https://user-images.githubusercontent.com/412853/191857267-2de948cc-4a59-49f9-aeae-2276c56a302e.png">
