@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter, Result as FormatResult};
 use std::str::FromStr;
 
-const ALL_GLYPHS: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890-=*_+|:<>";
+const ALL_GLYPHS: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890_-+*^|&=<>[]()|:/\\!?$%";
 const ALPHA_GLYPHS: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const ALPHA_LOWER_GLYPHS: &str = "abcdefghijklmnopqrstuvwxyz";
 const ALPHA_UPPER_GLYPHS: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -11,7 +11,10 @@ const DECIMAL_GLYPHS: &str = "0123456789";
 const HEX_GLYPHS: &str = "0123456789abcdefABCDEF";
 const HEX_LOWER_GLYPHS: &str = "0123456789abcdef";
 const HEX_UPPER_GLYPHS: &str = "0123456789ABCDEF";
+const MATH_GLYPHS: &str = "0123456789=+-±×÷><∑∫∞√";
+const SET_GLYPHS: &str = "QZCRc×∆∩∪∅∖-⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⟃⟄{}|";
 const SPECIAL_GLYPHS: &str = "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ";
+const SYMBOL_GLYPHS: &str = "_-+*^|&=<>[]()|/\\;:!?$%#@";
 
 pub enum GlyphSet {
     All,
@@ -24,7 +27,10 @@ pub enum GlyphSet {
     Hex,
     HexLower,
     HexUpper,
+    Math,
+    Set,
     Special,
+    Symbol,
 }
 
 impl FromStr for GlyphSet {
@@ -42,7 +48,10 @@ impl FromStr for GlyphSet {
             "hex" => Ok(GlyphSet::Hex),
             "hex_lower" => Ok(GlyphSet::HexLower),
             "hex_upper" => Ok(GlyphSet::HexUpper),
+            "math" => Ok(GlyphSet::Math),
+            "set" => Ok(GlyphSet::Set),
             "special" => Ok(GlyphSet::Special),
+            "symbol" => Ok(GlyphSet::Symbol),
             _ => Err(format!("Unknown glyph set '{}'", s))
         }
     }
@@ -61,7 +70,10 @@ impl GlyphSet {
             GlyphSet::Hex => HEX_GLYPHS,
             GlyphSet::HexLower => HEX_LOWER_GLYPHS,
             GlyphSet::HexUpper => HEX_UPPER_GLYPHS,
+            GlyphSet::Math => MATH_GLYPHS,
+            GlyphSet::Set => SET_GLYPHS,
             GlyphSet::Special => SPECIAL_GLYPHS,
+            GlyphSet::Symbol => SYMBOL_GLYPHS,
         };
 
         alpha.chars().collect()
@@ -79,7 +91,10 @@ impl GlyphSet {
             GlyphSet::Hex => "hex",
             GlyphSet::HexLower => "hex_lower",
             GlyphSet::HexUpper => "hex_upper",
+            GlyphSet::Math => "math",
+            GlyphSet::Set => "set",
             GlyphSet::Special => "special",
+            GlyphSet::Symbol => "symbol",
         }
     }
 }

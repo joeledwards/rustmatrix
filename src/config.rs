@@ -19,7 +19,7 @@ pub struct Config {
         help = "The set of glyphs which should be displayed.",
         possible_values = &[
             "all", "alpha", "alpha_lower", "alpha_upper", "alphanum", "binary",
-            "decimal", "hex", "hex_lower", "hex_upper", "special"
+            "decimal", "hex", "hex_lower", "hex_upper", "math", "set", "special", "symbol"
         ],
         default_value_t = GlyphSet::All
     )]
