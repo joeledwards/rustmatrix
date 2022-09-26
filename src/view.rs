@@ -13,8 +13,9 @@ use crate::config::{Config};
 
 // TODO: store traces in a TreeSet ordered by next_update_time. The next_update_time is computed
 // based on the previous update time and the update_interval of the trace.
-
-const CHARS: &str = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNMｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890-=*_+|:<>";
+// 
+// TODO: manage density by tracking how many columns contain traces, and prevent adding new traces
+// until density decreases.
 
 enum ColorType {
     White,
@@ -36,11 +37,10 @@ enum GlyphType {
 }
 
 impl GlyphType {
-    fn choice_char(&mut self) -> Character {
+    fn choice_char(&mut self, alphabet: &Vec<char>) -> Character {
         match self {
             GlyphType::Writer { white, ref mut rng } => {
-                let chars: Vec<char> = String::from(CHARS).chars().collect();
-                let char = chars.choose(rng).unwrap().to_owned();
+                let char = alphabet.choose(rng).unwrap().to_owned();
                 let bold = rng.gen();
 
                 let color_type = if *white {
@@ -65,24 +65,28 @@ struct Glyph {
     y: u16,
     previous_char: Character,
     char: Character,
+    alphabet: Vec<char>
 }
 
 impl Glyph {
-    fn new(mut node_type: GlyphType) -> Glyph {
+    fn new(mut node_type: GlyphType, alphabet: &Vec<char>) -> Glyph {
         let y = 1;
-        let char = node_type.choice_char();
+        let alpha = alphabet.to_vec();
+        let char = node_type.choice_char(&alpha);
 
         Glyph {
             node_type,
             y,
             previous_char: Character::Blank,
             char,
+            alphabet: alpha
         }
     }
 
     fn update(&mut self) {
         self.y += 1;
-        let next_char = self.node_type.choice_char();
+        let alpha = self.alphabet.to_vec();
+        let next_char = self.node_type.choice_char(&alpha);
         self.previous_char = mem::replace(&mut self.char, next_char);
     }
 }
@@ -94,16 +98,18 @@ struct Trace {
     wait_time: u16,
     rng: ThreadRng,
     glyphs: VecDeque<Glyph>,
+    alphabet: Vec<char>,
     is_drawing: bool,
     color: Color,
 }
 
 impl Trace {
-    fn new(glyph_count: u16, color: Color, min_update_delay: u64, max_update_delay: u64) -> Trace {
+    fn new(glyph_count: u16, color: Color, min_update_delay: u64, max_update_delay: u64, alphabet: Vec<char>) -> Trace {
         let mut rng = thread_rng();
         let update_delay = Duration::from_millis(rng.gen_range(min_update_delay..max_update_delay));
         let wait_time = rng.gen_range(0..glyph_count);
         let last_updated = Instant::now();
+        let alpha = alphabet.to_vec();
 
         Trace {
             glyph_count,
@@ -112,6 +118,7 @@ impl Trace {
             wait_time,
             rng,
             glyphs: VecDeque::new(),
+            alphabet: alpha,
             is_drawing: false,
             color,
         }
@@ -121,6 +128,7 @@ impl Trace {
         let max_range = self.glyph_count - 3;
         let start_delay = self.rng.gen_range(1..max_range);
         self.wait_time = start_delay;
+        let alpha = self.alphabet.to_vec();
 
         self.is_drawing = !self.is_drawing;
         if self.is_drawing {
@@ -128,9 +136,9 @@ impl Trace {
             Glyph::new(GlyphType::Writer {
                 white,
                 rng: thread_rng(),
-            })
+            }, &alpha)
         } else {
-            Glyph::new(GlyphType::Eraser)
+            Glyph::new(GlyphType::Eraser, &alpha)
         }
     }
 
@@ -173,10 +181,12 @@ impl MatrixApp {
         let column_count = size_x / 2;
         let minsd = config.min_step_delay;
         let maxsd = config.max_step_delay;
+        let alphabet: Vec<char> = config.glyph_set.to_alphabet();
 
         // TODO: replace the viewport when dimensions change
+        // TODO: pass glyph alphabet into the glyph selector
 
-        let columns = (0..column_count).map(|_| Trace::new(size_y, color_pool.random(), minsd, maxsd)).collect();
+        let columns = (0..column_count).map(|_| Trace::new(size_y, color_pool.random(), minsd, maxsd, alphabet.to_vec())).collect();
 
         MatrixApp {
             columns,

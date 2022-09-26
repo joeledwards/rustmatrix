@@ -1,3 +1,4 @@
+mod alphabet;
 mod color;
 mod config;
 mod event;
